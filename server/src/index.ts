@@ -31,14 +31,19 @@ const io: Server = new Server(server, {
 // server variables
 const letters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const roomIds: string[] = [];
+const roomPlayers: {[key: string]: number} = {};
+const roomChips: {[key: string]: number[]} = {};
+const roomPots: {[key: string]: number} = {};
 
 io.on('connection', (socket: Socket) => {
   console.log(`[server]: New connection ${socket.id}`);
 
-  socket.on('joinRoom', (roomId: string) => {
-    console.log(`[socket]: ${socket.id} joined room ${roomId}`);
+  socket.on('joinRoom', (data) => {
+    const { roomId, amount } = data;
+    console.log(`[socket]: ${socket.id} joined room ${roomId} with ${amount} chips`);
     socket.join(roomId);
-    socket.emit('message', `You are the ${io.sockets.adapter.rooms.get(roomId)?.size}th person to join the room`);
+    
+    // todo: add socket actions
     
     socket.on('disconnect', () => {
       console.log(`[socket]: ${socket.id} disconnected from room ${roomId}`);
