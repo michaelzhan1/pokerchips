@@ -2,25 +2,28 @@
 
 
 import { useRouter } from 'next/navigation';
-import { useState, useContext } from 'react';
+import { useContext } from 'react';
 import { PlayerContext } from '@/contexts/PlayerContext'; 
 
 
-const DEFAULT_AMOUNT = 1000;
+const DEFAULT_AMOUNT: number = 1000;
 
 
 export default function Home() {
+  // ===== DATA AND ROUTING HOOKS =====
   const router = useRouter();
-  const {name, setName, amount, setAmount, roomId, setRoomId} = useContext(PlayerContext);
+  const {name, setName, setAmount, roomId, setRoomId} = useContext(PlayerContext);
+  // ===== END DATA AND ROUTING HOOKS =====
 
-  // const [name, setName] = useState<string>('');
-  // const [amount, setAmount] = useState<number>(DEFAULT_AMOUNT);
 
+  // ===== FIELD FUNCTIONS =====
   const checkName = (): boolean => { return name.length > 0; }
-
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>): void => { setName(e.target.value); }
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>): void => { setAmount(parseInt(e.target.value)); }
+  // ===== END FIELD FUNCTIONS =====
 
+
+  // ===== ROOM FUNCTIONS =====
   const createRoom = async (): Promise<void> => {
     if (!checkName()) {
       alert('Enter a name');
@@ -47,6 +50,7 @@ export default function Home() {
       alert('Room does not exist');
     }
   }
+  // ===== END ROOM FUNCTIONS =====
 
   return (
     <>

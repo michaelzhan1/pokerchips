@@ -9,9 +9,9 @@ import { RoomInfoType } from './type/room';
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3001;
+const port: string = process.env.PORT || "3001";
 
-// set up socket
+// ===== SOCKET SERVER INIT =====
 app.use(cors({
   origin: process.env.CLIENT_URL,
   methods: ["GET", "POST"],
@@ -28,24 +28,32 @@ const io: Server = new Server(server, {
     methods: ["GET", "POST"],
   }
 });
+// ===== END SOCKET SERVER INIT =====
 
 
-// server variables
+// ===== SERVER VARIABLES =====
 const letters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const roomIds: string[] = [];
-const allRoomInfo: {[key: string]: RoomInfoType} = {}; // track players (socketid) and their amounts
+const allRoomInfo: {[key: string]: RoomInfoType} = {};
 const allRoomPots: {[key: string]: number} = {};
+// ===== END SERVER VARIABLES =====
 
-// helper functions
+
+// ===== HELPER FUNCTIONS =====
 const sendRoomData = (roomId: string) => {
   io.to(roomId).emit('roomInfo', allRoomInfo[roomId]);
   io.to(roomId).emit('roomPot', allRoomPots[roomId]);
 }
 
+// todo: add emit helper function to emit message for history log update
+// ===== END HELPER FUNCTIONS =====
+
+
+// ===== SOCKET EVENTS =====
 io.on('connection', (socket: Socket) => {
   console.log(`[server]: New connection ${socket.id}`);
 
-  socket.on('joinRoom', (data) => {
+  socket.on('joinRoom', (data: {roomId: string, amount: number, name: string}): void => {
     const { roomId, amount, name } = data;
     if (!roomIds.includes(roomId)) {
       socket.emit('roomError', 'Room does not exist');
@@ -56,21 +64,21 @@ io.on('connection', (socket: Socket) => {
     socket.join(roomId);
 
     // Add player to room and initialize room, then update room data
-    allRoomInfo[roomId] = {...allRoomInfo[roomId], [socket.id]: {name: name, amount: parseInt(amount || '1000')}};
+    allRoomInfo[roomId] = {...allRoomInfo[roomId], [socket.id]: {name: name, amount: amount}};
     if (!allRoomPots[roomId]) allRoomPots[roomId] = 0;
     sendRoomData(roomId);
 
-    socket.on('bet', (data) => {
+    socket.on('bet', (data: {amt: number, roomId: string, socketId: string}): void => {
       const { amt, socketId, roomId } = data;
-      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) bet ${amt} chips`);
+      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) bet ${amt} chips`); // todo: send message
       allRoomInfo[roomId][socketId].amount -= amt;
       allRoomPots[roomId] += amt;
       sendRoomData(roomId);
     });
 
-    socket.on('take', (data) => {
+    socket.on('take', (data: {amt: number, roomId: string, socketId: string}): void => {
       const { amt, socketId, roomId } = data;
-      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) took ${amt} chips`);
+      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) took ${amt} chips`); // todo: send message
       allRoomInfo[roomId][socketId].amount += amt;
       allRoomPots[roomId] -= amt;
       sendRoomData(roomId);
@@ -90,13 +98,15 @@ io.on('connection', (socket: Socket) => {
       }
       console.log(`Remaining room codes: ${roomIds}`);
       console.log(`Remaining room data: ${JSON.stringify(allRoomInfo)}`);
+      console.log(`Remaining room pots: ${JSON.stringify(allRoomPots)}`);
     });
   });
 });
+// ===== END SOCKET EVENTS =====
 
 
 // ===== API ROUTES =====
-app.get('/api/getNewRoomId', (req: Request, res: Response) => {
+app.get('/api/getNewRoomId', (req: Request, res: Response): void => {
   // generate 5 letter game ID
   let newRoomId: string;
   do {
@@ -111,7 +121,7 @@ app.get('/api/getNewRoomId', (req: Request, res: Response) => {
   res.send(newRoomId);
 });
 
-app.get('/api/checkRoomId/:roomId', (req: Request, res: Response) => {
+app.get('/api/checkRoomId/:roomId', (req: Request, res: Response): void => {
   const { roomId } = req.params;
   res.send(roomIds.includes(roomId));
 });

@@ -8,22 +8,29 @@ import { RoomInfoType } from '@/type/room';
 import { PlayerContext } from '@/contexts/PlayerContext';
 
 
-const DEFAULT_POT_AMOUNT = 0;
+const DEFAULT_POT_AMOUNT: number = 0;
 
 export default function Page({params}: {params: {slug: string}}) {
+  // ===== DATA AND ROUTING HOOKS =====
   const router = useRouter();
-  const roomId = params.slug;
   const {name, amount, setAmount, setRoomId} = useContext(PlayerContext);
+  // ===== END DATA AND ROUTING HOOKS =====
 
+
+  // ===== STATE VARIABLES =====
+  const roomId: string = params.slug;
   const [allPlayers, setAllPlayers] = useState<string[]>([]);
   const [allChips, setAllChips] = useState<number[]>([]);
   const [pot, setPot] = useState<number>(0);
   const [ownChips, setOwnChips] = useState<number>(0);
   const [transactionAmt, setTransactionAmt] = useState<number>(0);
+  // ===== END STATE VARIABLES =====
 
+
+  // ===== FIELD FUNCTIONS =====
   const handleTransactionAmtChange = (e: React.ChangeEvent<HTMLInputElement>): void => { setTransactionAmt(parseInt(e.target.value)); }
 
-  const handleBet = () => {
+  const handleBet = (): void => {
     if (transactionAmt > ownChips) {
       alert('Not enough chips');
       return;
@@ -32,19 +39,22 @@ export default function Page({params}: {params: {slug: string}}) {
     socket.emit('bet', {amt: transactionAmt, roomId: roomId, socketId: socket.id});
   }
 
-  const handleTake = () => {
+  const handleTake = (): void => {
     if (transactionAmt > pot) {
       alert('Not enough chips in pot');
       return;
     }
     socket.emit('take', {amt: transactionAmt, roomId: roomId, socketId: socket.id});
   }
+  // ===== END FIELD FUNCTIONS =====
 
+
+  // ===== SOCKET EVENT HELPER FUNCTIONS =====
   const parseRoomInfo = (data: RoomInfoType, socketId: string | undefined) => {
-    const playerData = Object.values(data);
-    const players = playerData.map(player => player.name);
-    const chips = playerData.map(player => player.amount);
-    const ownChips = (socketId !== undefined) ? data[socketId].amount : 0;
+    const playerData: {name: string, amount: number}[] = Object.values(data);
+    const players: string[] = playerData.map(player => player.name);
+    const chips: number[] = playerData.map(player => player.amount);
+    const ownChips: number = (socketId !== undefined) ? data[socketId].amount : 0;
     setAllPlayers(players);
     setAllChips(chips);
     setOwnChips(ownChips);
@@ -52,6 +62,10 @@ export default function Page({params}: {params: {slug: string}}) {
   }
 
   const parsePotInfo = (data: number) => { setPot(data); }
+  // ===== END SOCKET EVENT HELPER FUNCTIONS =====
+
+
+  // ===== SOCKET EVENTS =====
   useEffect(() => {
     setRoomId(roomId);
     if (name === '') router.push('/');
@@ -74,6 +88,7 @@ export default function Page({params}: {params: {slug: string}}) {
   
   socket.on('roomInfo', (data) => parseRoomInfo(data, socket.id));
   socket.on('roomPot', parsePotInfo);
+  // ===== END SOCKET EVENTS =====
 
   return (
     <main>

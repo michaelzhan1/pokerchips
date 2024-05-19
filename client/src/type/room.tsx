@@ -1,3 +1,3 @@
 export interface RoomInfoType {
-  [player: string]: {name: string, amount: number}
+  [socketid: string]: {name: string, amount: number}
 }
