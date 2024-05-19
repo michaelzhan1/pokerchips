@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import http from 'http';
 import { Server, Socket } from 'socket.io';
 
+import { RoomInfoType } from './type/room';
+
 dotenv.config();
 
 const app: Express = express();
@@ -31,22 +33,37 @@ const io: Server = new Server(server, {
 // server variables
 const letters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const roomIds: string[] = [];
-const roomPlayers: {[key: string]: number} = {};
-const roomChips: {[key: string]: number[]} = {};
-const roomPots: {[key: string]: number} = {};
+const allRoomInfo: {[key: string]: RoomInfoType} = {}; // track players (socketid) and their amounts
+const allRoomPots: {[key: string]: number} = {};
+
+// helper functions
+const sendRoomData = (roomId: string) => {
+  io.to(roomId).emit('roomInfo', allRoomInfo[roomId]);
+  io.to(roomId).emit('roomPot', allRoomPots[roomId]);
+}
 
 io.on('connection', (socket: Socket) => {
   console.log(`[server]: New connection ${socket.id}`);
 
   socket.on('joinRoom', (data) => {
-    const { roomId, amount } = data;
-    console.log(`[socket]: ${socket.id} joined room ${roomId} with ${amount} chips`);
+    const { roomId, amount, name } = data;
+    console.log(`[socket]: ${name} (${socket.id}) joined room ${roomId} with ${amount} chips`);
     socket.join(roomId);
-    
-    // todo: add socket actions
+
+    // Add player to room and initialize room, then update room data
+    allRoomInfo[roomId] = {...allRoomInfo[roomId], [socket.id]: {name: name, amount: parseInt(amount || '1000')}};
+    if (!allRoomPots[roomId]) allRoomPots[roomId] = 0;
+    sendRoomData(roomId);
     
     socket.on('disconnect', () => {
       console.log(`[socket]: ${socket.id} disconnected from room ${roomId}`);
+      if (allRoomInfo[roomId]) delete allRoomInfo[roomId][socket.id];
+      if (Object.keys(allRoomInfo[roomId]).length === 0) {
+        delete allRoomInfo[roomId];
+        delete allRoomPots[roomId];
+      } else {
+        sendRoomData(roomId);
+      }
     });
   });
 });
