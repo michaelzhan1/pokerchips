@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "author": "Michael Zhan",
+  "license": "MIT",
   "dependencies": {
     "react": "^18",
     "react-dom": "^18",
