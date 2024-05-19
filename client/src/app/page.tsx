@@ -2,7 +2,8 @@
 
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { PlayerContext } from '@/contexts/PlayerContext'; 
 
 
 const DEFAULT_AMOUNT = 1000;
@@ -10,9 +11,10 @@ const DEFAULT_AMOUNT = 1000;
 
 export default function Home() {
   const router = useRouter();
+  const {name, setName, amount, setAmount, roomId, setRoomId} = useContext(PlayerContext);
 
-  const [name, setName] = useState<string>('');
-  const [amount, setAmount] = useState<number>(DEFAULT_AMOUNT);
+  // const [name, setName] = useState<string>('');
+  // const [amount, setAmount] = useState<number>(DEFAULT_AMOUNT);
 
   const checkName = (): boolean => { return name.length > 0; }
 
@@ -26,7 +28,8 @@ export default function Home() {
     }
     const res: Response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/getNewRoomId');
     const roomId: string = await res.text();
-    router.push(`${roomId}?amt=${amount}&name=${name}`);
+    setRoomId(roomId);
+    router.push(`${roomId}`);
   }
 
   const joinRoom = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -39,7 +42,7 @@ export default function Home() {
     const res: Response   = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + `/api/checkRoomId/${roomId}`);
     const roomExists: string    = await res.text();
     if (roomExists === 'true') {
-      router.push(`${roomId}?amt=${amount}&name=${name}`);
+      router.push(`${roomId}`);
     } else {
       alert('Room does not exist');
     }
@@ -60,7 +63,7 @@ export default function Home() {
         </div>
         <div className='w-80 mt-4'>
           <form onSubmit={joinRoom}>
-            <input type='text' name='roomId' placeholder='Enter Room ID' className='w-full border border-gray-300 rounded p-2' />
+            <input type='text' name='roomId' defaultValue={roomId} placeholder='Enter Room ID' className='w-full border border-gray-300 rounded p-2' />
             <button type='submit' className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2'>Join Room</button>
           </form>
         </div>

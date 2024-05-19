@@ -1,10 +1,11 @@
 'use client';
 
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import { socket } from '@/app/socket';
 import { RoomInfoType } from '@/type/room';
+import { PlayerContext } from '@/contexts/PlayerContext';
 
 
 const DEFAULT_POT_AMOUNT = 0;
@@ -12,6 +13,7 @@ const DEFAULT_POT_AMOUNT = 0;
 export default function Page({params}: {params: {slug: string}}) {
   const router = useRouter();
   const roomId = params.slug;
+  const {name, amount, setAmount, setRoomId} = useContext(PlayerContext);
 
   const [allPlayers, setAllPlayers] = useState<string[]>([]);
   const [allChips, setAllChips] = useState<number[]>([]);
@@ -46,13 +48,13 @@ export default function Page({params}: {params: {slug: string}}) {
     setAllPlayers(players);
     setAllChips(chips);
     setOwnChips(ownChips);
+    setAmount(ownChips);
   }
 
   const parsePotInfo = (data: number) => { setPot(data); }
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const amount = searchParams.get('amt');
-    const name = searchParams.get('name');
+    setRoomId(roomId);
+    if (name === '') router.push('/');
 
     socket.connect();
     socket.on('connect', () => {
@@ -78,6 +80,7 @@ export default function Page({params}: {params: {slug: string}}) {
       <div className='w-screen flex flex-col items-center'>
         <div className='w-80'>
           <h1 className='text-2xl font-bold'>Room {roomId}</h1>
+          <p>You are: {name}</p>
           <p>Players: {allPlayers.join(', ')}</p>
           <p>Chips: {allChips.join(', ')}</p>
           <p>Pot: {pot}</p>
