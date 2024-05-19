@@ -59,11 +59,14 @@ io.on('connection', (socket: Socket) => {
       console.log(`[socket]: ${socket.id} disconnected from room ${roomId}`);
       if (allRoomInfo[roomId]) delete allRoomInfo[roomId][socket.id];
       if (Object.keys(allRoomInfo[roomId]).length === 0) {
+        roomIds.splice(roomIds.indexOf(roomId), 1);
         delete allRoomInfo[roomId];
         delete allRoomPots[roomId];
       } else {
         sendRoomData(roomId);
       }
+      console.log(`Remaining room codes: ${roomIds}`);
+      console.log(`Remaining room data: ${JSON.stringify(allRoomInfo)}`);
     });
   });
 });
