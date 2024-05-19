@@ -54,6 +54,24 @@ io.on('connection', (socket: Socket) => {
     allRoomInfo[roomId] = {...allRoomInfo[roomId], [socket.id]: {name: name, amount: parseInt(amount || '1000')}};
     if (!allRoomPots[roomId]) allRoomPots[roomId] = 0;
     sendRoomData(roomId);
+
+    socket.on('bet', (data) => {
+      const { amt, socketId, roomId } = data;
+      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) bet ${amt} chips`);
+      allRoomInfo[roomId][socketId].amount -= amt;
+      allRoomPots[roomId] += amt;
+      sendRoomData(roomId);
+    });
+
+    socket.on('take', (data) => {
+      const { amt, socketId, roomId } = data;
+      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) took ${amt} chips`);
+      allRoomInfo[roomId][socketId].amount += amt;
+      allRoomPots[roomId] -= amt;
+      sendRoomData(roomId);
+    });
+
+
     
     socket.on('disconnect', () => {
       console.log(`[socket]: ${socket.id} disconnected from room ${roomId}`);
