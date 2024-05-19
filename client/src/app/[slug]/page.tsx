@@ -2,11 +2,13 @@
 
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { socket } from '@/app/socket';
 import { RoomInfoType } from '@/type/room';
 
 
 export default function Page({params}: {params: {slug: string}}) {
+  const router = useRouter();
   const roomId = params.slug;
 
   const [players, setPlayers] = useState<string[]>([]);
@@ -38,6 +40,10 @@ export default function Page({params}: {params: {slug: string}}) {
     socket.on('connect', () => {
       console.log(`[client]: Connected with id ${socket.id}`);
       socket.emit('joinRoom', {roomId: roomId, amount: amount, name: name});
+      socket.on('roomError', (data: string) => {
+        alert(data);
+        router.push('/');
+      });
     })
     
     return () => {

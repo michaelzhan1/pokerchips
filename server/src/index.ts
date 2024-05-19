@@ -47,6 +47,11 @@ io.on('connection', (socket: Socket) => {
 
   socket.on('joinRoom', (data) => {
     const { roomId, amount, name } = data;
+    if (!roomIds.includes(roomId)) {
+      socket.emit('roomError', 'Room does not exist');
+      return;
+    }
+
     console.log(`[socket]: ${name} (${socket.id}) joined room ${roomId} with ${amount} chips`);
     socket.join(roomId);
 
