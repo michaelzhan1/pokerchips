@@ -27,19 +27,44 @@ const io: Server = new Server(server, {
   }
 });
 
+
+// server variables
+const letters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const roomIds: string[] = [];
+
 io.on('connection', (socket: Socket) => {
-  console.log(`[socket]: ${socket.id} connected`);
+  console.log(`[server]: New connection ${socket.id}`);
 
-  io.to(socket.id).emit('message', `Hello ${socket.id}! You are the ${io.engine.clientsCount}th user`);
-
-  socket.on('disconnect', () => {
-    console.log(`[socket]: ${socket.id} disconnected`);
+  socket.on('joinRoom', (roomId: string) => {
+    console.log(`[socket]: ${socket.id} joined room ${roomId}`);
+    socket.join(roomId);
+    socket.emit('message', `You are the ${io.sockets.adapter.rooms.get(roomId)?.size}th person to join the room`);
+    
+    socket.on('disconnect', () => {
+      console.log(`[socket]: ${socket.id} disconnected from room ${roomId}`);
+    });
   });
-})
-
-
-
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello world!");
 });
+
+
+// ===== API ROUTES =====
+app.get('/api/getNewRoomId', (req: Request, res: Response) => {
+  // generate 5 letter game ID
+  let newRoomId: string;
+  do {
+    newRoomId = '';
+    for (let i = 0; i < 5; i++) {
+      newRoomId += letters[Math.floor(Math.random() * letters.length)];
+    }
+  } while (roomIds.includes(newRoomId));
+
+  console.log(`[server]: New room ID generated: ${newRoomId}`);
+  roomIds.push(newRoomId);
+  res.send(newRoomId);
+});
+
+app.get('/api/checkRoomId/:roomId', (req: Request, res: Response) => {
+  const { roomId } = req.params;
+  res.send(roomIds.includes(roomId));
+});
+// ===== END API ROUTES =====
