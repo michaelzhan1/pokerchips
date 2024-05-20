@@ -97,7 +97,7 @@ export default function Page({params}: {params: {slug: string}}) {
 
     socket.connect();
     socket.on('connect', () => {
-      console.log(`[client]: Connected with id ${socket.id}`);
+      // console.log(`[client]: Connected with id ${socket.id}`);
       socket.emit('joinRoom', {roomId: roomId, amount: amount, name: name});
       socket.on('roomError', (data: string) => {
         alert(data);
