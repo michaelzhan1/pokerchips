@@ -126,6 +126,7 @@ export default function Page({params}: {params: {slug: string}}) {
         {/* Room Info */}
         <div className='grid grid-cols-2 divide-x divide-neutral-400 w-full md:w-5/12 mt-24'>
           <div className='flex flex-col items-center'>
+            {/* Player info */}
             <div className='w-full text-center rounded-md border p-3 border-neutral-400 overflow-y-auto'>
               <div className='w-full text-center font-bold text-lg'>
                 Players
@@ -140,6 +141,7 @@ export default function Page({params}: {params: {slug: string}}) {
                 </>
               ))}
             </div>
+            {/* Action info */}
             <div className='w-full text-center mt-10 rounded-md border p-3 border-neutral-400 overflow-y-auto'>
               <div className='w-full text-center font-bold text-lg'>
                 Events
@@ -148,6 +150,7 @@ export default function Page({params}: {params: {slug: string}}) {
             </div>
           </div>
           <div className='flex flex-col items-center'>
+            {/* Pot and chip info */}
             <div className='w-full flex flex-col items-center'>
               <p className='w-full text-center font-bold text-lg'>Pot</p>
               <p className='w-full text-center'>{pot}</p>
@@ -156,6 +159,7 @@ export default function Page({params}: {params: {slug: string}}) {
               <p className='w-full text-center font-bold text-lg'>Your Chips</p>
               <p className='w-full text-center'>{ownChips}</p>
             </div>
+            {/* Bet and Take buttons */}
             <div className='flex flex-col'>
               <div className='flex flex-row'>
                 <button type='button' onClick={() => modifyTransactionAmt(-10)} className='w-1/4 border border-gray-300 rounded p-2'>-10</button>
