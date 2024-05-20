@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { socket } from '@/app/socket';
 import { RoomInfoType } from '@/type/room';
 import { PlayerContext } from '@/contexts/PlayerContext';
+import Image from 'next/image';
 
 
 const DEFAULT_POT_AMOUNT: number = 0;
@@ -71,16 +72,24 @@ export default function Page({params}: {params: {slug: string}}) {
   // ===== SOCKET EVENTS =====
   useEffect(() => {
     setRoomId(roomId);
-    if (name === '') router.push('/');
+    // if (name === '') router.push('/');
+    //DEBUG
+    setAmount(DEFAULT_POT_AMOUNT);
+    setAllPlayers(['player1', 'player2', 'player3']);
+    setAllChips([1000, 2000, 3000]);
+    setPot(0);
+    setOwnChips(1000);
+    setActions(['player1 bet 100', 'player2 take 200']);
+    //END DEBUG
 
     socket.connect();
     socket.on('connect', () => {
-      console.log(`[client]: Connected with id ${socket.id}`);
-      socket.emit('joinRoom', {roomId: roomId, amount: amount, name: name});
-      socket.on('roomError', (data: string) => {
-        alert(data);
-        router.push('/');
-      });
+      // console.log(`[client]: Connected with id ${socket.id}`); // todo: ADD BACK
+      // socket.emit('joinRoom', {roomId: roomId, amount: amount, name: name});
+      // socket.on('roomError', (data: string) => {
+      //   alert(data);
+      //   router.push('/');
+      // });
     })
     
     return () => {
@@ -95,31 +104,72 @@ export default function Page({params}: {params: {slug: string}}) {
   // ===== END SOCKET EVENTS =====
 
   return (
-    <main>
+    <>
       <div className='w-screen flex flex-col items-center'>
-        <div className='w-80'>
-          <h1 className='text-2xl font-bold'>Room {roomId}</h1>
-          <p>You are: {name}</p>
-          <p>Players: {allPlayers.join(', ')}</p>
-          <p>Chips: {allChips.join(', ')}</p>
-          <p>Pot: {pot}</p>
-          <p>Your chips: {ownChips}</p>
+        {/* Header */}
+        <div className='bg-neutral-500 w-full flex justify-center'>
+          <div className='w-full md:w-5/6 flex justify-between'>
+            <div className="w-1/2 flex">
+              <div className='flex flex-col justify-center relative w-1/4 ms-3'>
+                <Image src='/poker-chip.png' fill alt='poker chip' objectFit='cover' className=''/>
+              </div>
+              <h1 className='text-white text-xl md:text-3xl p-4 align-middle'>PokerChips</h1>
+            </div>
+            <div className='flex justify-center items-center w-1/2'>
+              <div className='text-white text-xl'>
+                Room: {roomId}
+              </div>
+            </div>
+          </div>
         </div>
-        <hr className='h-px mb-3' />
-        <div>
-          {actions.map((action, index) => <p key={index}>{action}</p>)}
-        </div>
-        <hr className='h-px mb-3' />
-        <div className='flex flex-row'>
-          <button type='button' onClick={() => modifyTransactionAmt(-10)} className='w-20 border border-gray-300 rounded p-2'>-10</button>
-          <input type='number' name='transactionAmt' onChange={handleTransactionAmtChange} value={transactionAmt} inputMode='numeric' className='w-40 border border-gray-300 rounded p-2' />
-          <button type='button' onClick={() => modifyTransactionAmt(10)} className='w-20 border border-gray-300 rounded p-2'>+10</button>
-        </div>
-        <div className='flex flex-col'>
-          <button type='button' onClick={handleBet} className='w-80 mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Bet</button>
-          <button type='button' onClick={handleTake} className='w-80 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Take</button>
+
+        {/* Room Info */}
+        <div className='grid grid-cols-2 divide-x divide-neutral-400 w-full md:w-5/12 mt-24'>
+          <div className='flex flex-col items-center'>
+            <div className='w-full text-center rounded-md border p-3 border-neutral-400 overflow-y-auto'>
+              <div className='w-full text-center font-bold text-lg'>
+                Players
+              </div>
+              {allPlayers.map((player, index) => (
+                <>
+                  <div key={index} className='flex flex-row justify-between'>
+                    <p>{player}</p>
+                    <p>{allChips[index]}</p>
+                  </div>
+                  {index < allPlayers.length - 1 && <hr className='h-px' />}
+                </>
+              ))}
+            </div>
+            <div className='w-full text-center mt-10 rounded-md border p-3 border-neutral-400 overflow-y-auto'>
+              <div className='w-full text-center font-bold text-lg'>
+                Events
+              </div>
+              {actions.map((action, index) => <p key={index}>{action}</p>)}
+            </div>
+          </div>
+          <div className='flex flex-col items-center'>
+            <div className='w-full flex flex-col items-center'>
+              <p className='w-full text-center font-bold text-lg'>Pot</p>
+              <p className='w-full text-center'>{pot}</p>
+            </div>
+            <div className='flex flex-col items-center'>
+              <p className='w-full text-center font-bold text-lg'>Your Chips</p>
+              <p className='w-full text-center'>{ownChips}</p>
+            </div>
+            <div className='flex flex-col'>
+              <div className='flex flex-row'>
+                <button type='button' onClick={() => modifyTransactionAmt(-10)} className='w-1/4 border border-gray-300 rounded p-2'>-10</button>
+                <input type='number' name='transactionAmt' onChange={handleTransactionAmtChange} value={transactionAmt} inputMode='numeric' className='w-1/2 border border-gray-300 rounded p-2' />
+                <button type='button' onClick={() => modifyTransactionAmt(10)} className='w-1/4 border border-gray-300 rounded p-2'>+10</button>
+              </div>
+              <div className='flex flex-col'>
+                <button type='button' onClick={handleBet} className='w-full mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Bet</button>
+                <button type='button' onClick={handleTake} className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Take</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </main>
+    </>
   );
 }
