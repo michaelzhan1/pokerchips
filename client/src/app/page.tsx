@@ -31,8 +31,8 @@ export default function Home() {
       return;
     }
     const res: Response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/getNewRoomId');
-    const data: {roomId: string} = await res.json();
-    const roomId: string = data.roomId;
+    const roomId: string = await res.text();
+    // const roomId: string = data.roomId;
     setRoomId(roomId);
     router.push(`${roomId}`);
   }
@@ -45,8 +45,8 @@ export default function Home() {
     }
     const roomId: string  = (e.currentTarget as HTMLFormElement).roomId.value;
     const res: Response   = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + `/api/checkRoomId/${roomId}`);
-    const data: {roomExists: string}    = await res.json();
-    const roomExists: string = data.roomExists;
+    const roomExists: string    = await res.text();
+    // const roomExists: string = data.roomExists;
     if (roomExists === 'true') {
       router.push(`${roomId}`);
     } else {

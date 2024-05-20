@@ -124,13 +124,16 @@ app.get('/api/getNewRoomId', (req: Request, res: Response): void => {
 
   // console.log(`[server]: New room ID generated: ${newRoomId}`);
   roomIds.push(newRoomId);
-  let data = JSON.stringify({roomId: newRoomId});
-  res.send(data);
+  // res.setHeader('Content-Type', 'application/json');
+  // res.json({roomId: newRoomId});
+  res.send(newRoomId);
 });
 
 app.get('/api/checkRoomId/:roomId', (req: Request, res: Response): void => {
   const { roomId } = req.params;
-  let data = JSON.stringify({roomExists: roomIds.includes(roomId)});
-  res.send(data);
+  // res.setHeader('Content-Type', 'application/json');
+  // res.json({roomExists: roomIds.includes(roomId)});
+  if (roomIds.includes(roomId)) res.send('true');
+  else res.send('false');
 });
 // ===== END API ROUTES =====
