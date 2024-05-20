@@ -105,11 +105,11 @@ export default function Page({params}: {params: {slug: string}}) {
           <p>Pot: {pot}</p>
           <p>Your chips: {ownChips}</p>
         </div>
-        <hr className='h-px' />
+        <hr className='h-px mb-3' />
         <div>
           {actions.map((action, index) => <p key={index}>{action}</p>)}
         </div>
-        <hr className='h-px' />
+        <hr className='h-px mb-3' />
         <div className='flex flex-row'>
           <button type='button' onClick={() => modifyTransactionAmt(-10)} className='w-20 border border-gray-300 rounded p-2'>-10</button>
           <input type='number' name='transactionAmt' onChange={handleTransactionAmtChange} value={transactionAmt} inputMode='numeric' className='w-40 border border-gray-300 rounded p-2' />
