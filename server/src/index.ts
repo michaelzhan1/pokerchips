@@ -57,7 +57,7 @@ const sendAction = (roomId: string, name: string, action: string, amount: number
 
 // ===== SOCKET EVENTS =====
 io.on('connection', (socket: Socket) => {
-  console.log(`[server]: New connection ${socket.id}`);
+  // console.log(`[server]: New connection ${socket.id}`);
 
   socket.on('joinRoom', (data: {roomId: string, amount: number, name: string}): void => {
     const { roomId, amount, name } = data;
@@ -66,7 +66,7 @@ io.on('connection', (socket: Socket) => {
       return;
     }
 
-    console.log(`[socket]: ${name} (${socket.id}) joined room ${roomId} with ${amount} chips`);
+    // console.log(`[socket]: ${name} (${socket.id}) joined room ${roomId} with ${amount} chips`);
     socket.join(roomId);
 
     // Add player to room and initialize room, then update room data
@@ -76,7 +76,7 @@ io.on('connection', (socket: Socket) => {
 
     socket.on('bet', (data: {amt: number, roomId: string, socketId: string}): void => {
       const { amt, socketId, roomId } = data;
-      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) bet ${amt} chips`);
+      // console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) bet ${amt} chips`);
       allRoomInfo[roomId][socketId].amount -= amt;
       allRoomPots[roomId] += amt;
       sendRoomData(roomId);
@@ -85,7 +85,7 @@ io.on('connection', (socket: Socket) => {
 
     socket.on('take', (data: {amt: number, roomId: string, socketId: string}): void => {
       const { amt, socketId, roomId } = data;
-      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) took ${amt} chips`); // todo: send message
+      // console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) took ${amt} chips`); // todo: send message
       allRoomInfo[roomId][socketId].amount += amt;
       allRoomPots[roomId] -= amt;
       sendRoomData(roomId);
@@ -93,7 +93,7 @@ io.on('connection', (socket: Socket) => {
     });
     
     socket.on('disconnect', () => {
-      console.log(`[socket]: ${socket.id} disconnected from room ${roomId}`);
+      // console.log(`[socket]: ${socket.id} disconnected from room ${roomId}`);
       if (allRoomInfo[roomId]) delete allRoomInfo[roomId][socket.id];
       if (Object.keys(allRoomInfo[roomId]).length === 0) {
         roomIds.splice(roomIds.indexOf(roomId), 1);
@@ -102,9 +102,9 @@ io.on('connection', (socket: Socket) => {
       } else {
         sendRoomData(roomId);
       }
-      console.log(`Remaining room codes: ${roomIds}`);
-      console.log(`Remaining room data: ${JSON.stringify(allRoomInfo)}`);
-      console.log(`Remaining room pots: ${JSON.stringify(allRoomPots)}`);
+      // console.log(`Remaining room codes: ${roomIds}`);
+      // console.log(`Remaining room data: ${JSON.stringify(allRoomInfo)}`);
+      // console.log(`Remaining room pots: ${JSON.stringify(allRoomPots)}`);
     });
   });
 });
@@ -122,7 +122,7 @@ app.get('/api/getNewRoomId', (req: Request, res: Response): void => {
     }
   } while (roomIds.includes(newRoomId));
 
-  console.log(`[server]: New room ID generated: ${newRoomId}`);
+  // console.log(`[server]: New room ID generated: ${newRoomId}`);
   roomIds.push(newRoomId);
   res.send(newRoomId);
 });
