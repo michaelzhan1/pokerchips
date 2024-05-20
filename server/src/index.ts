@@ -45,7 +45,13 @@ const sendRoomData = (roomId: string) => {
   io.to(roomId).emit('roomPot', allRoomPots[roomId]);
 }
 
-// todo: add emit helper function to emit message for history log update
+const sendAction = (roomId: string, name: string, action: string, amount: number) => {
+  let message: string;
+  if (action === 'bet') message = `${name} bet ${amount} chips`;
+  else if (action === 'take') message = `${name} took ${amount} chips`;
+  else return;
+  io.to(roomId).emit('roomAction', message);
+}
 // ===== END HELPER FUNCTIONS =====
 
 
@@ -70,10 +76,11 @@ io.on('connection', (socket: Socket) => {
 
     socket.on('bet', (data: {amt: number, roomId: string, socketId: string}): void => {
       const { amt, socketId, roomId } = data;
-      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) bet ${amt} chips`); // todo: send message
+      console.log(`[socket]: ${allRoomInfo[roomId][socketId].name} (${socketId}) bet ${amt} chips`);
       allRoomInfo[roomId][socketId].amount -= amt;
       allRoomPots[roomId] += amt;
       sendRoomData(roomId);
+      sendAction(roomId, allRoomInfo[roomId][socketId].name, 'bet', amt);
     });
 
     socket.on('take', (data: {amt: number, roomId: string, socketId: string}): void => {
@@ -82,9 +89,8 @@ io.on('connection', (socket: Socket) => {
       allRoomInfo[roomId][socketId].amount += amt;
       allRoomPots[roomId] -= amt;
       sendRoomData(roomId);
+      sendAction(roomId, allRoomInfo[roomId][socketId].name, 'take', amt);
     });
-
-
     
     socket.on('disconnect', () => {
       console.log(`[socket]: ${socket.id} disconnected from room ${roomId}`);

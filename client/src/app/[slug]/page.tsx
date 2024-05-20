@@ -24,19 +24,21 @@ export default function Page({params}: {params: {slug: string}}) {
   const [pot, setPot] = useState<number>(0);
   const [ownChips, setOwnChips] = useState<number>(0);
   const [transactionAmt, setTransactionAmt] = useState<number>(0);
+  const [actions, setActions] = useState<string[]>([]);
   // ===== END STATE VARIABLES =====
 
 
   // ===== FIELD FUNCTIONS =====
   const handleTransactionAmtChange = (e: React.ChangeEvent<HTMLInputElement>): void => { setTransactionAmt(parseInt(e.target.value)); }
+  const modifyTransactionAmt = (amt: number): void => { setTransactionAmt(transactionAmt + amt); }
 
   const handleBet = (): void => {
     if (transactionAmt > ownChips) {
       alert('Not enough chips');
       return;
     }
-    console.log(transactionAmt);
     socket.emit('bet', {amt: transactionAmt, roomId: roomId, socketId: socket.id});
+    setTransactionAmt(0);
   }
 
   const handleTake = (): void => {
@@ -45,6 +47,7 @@ export default function Page({params}: {params: {slug: string}}) {
       return;
     }
     socket.emit('take', {amt: transactionAmt, roomId: roomId, socketId: socket.id});
+    setTransactionAmt(0);
   }
   // ===== END FIELD FUNCTIONS =====
 
@@ -88,6 +91,7 @@ export default function Page({params}: {params: {slug: string}}) {
   
   socket.on('roomInfo', (data) => parseRoomInfo(data, socket.id));
   socket.on('roomPot', parsePotInfo);
+  socket.on('roomAction', (data: string) => setActions([...actions, data]));
   // ===== END SOCKET EVENTS =====
 
   return (
@@ -102,8 +106,14 @@ export default function Page({params}: {params: {slug: string}}) {
           <p>Your chips: {ownChips}</p>
         </div>
         <hr className='h-px' />
-        <div className='flex flex-col'>
-          <input type='number' name='transactionAmt' onChange={handleTransactionAmtChange} defaultValue={DEFAULT_POT_AMOUNT} inputMode='numeric' className='w-80 border border-gray-300 rounded p-2' />
+        <div>
+          {actions.map((action, index) => <p key={index}>{action}</p>)}
+        </div>
+        <hr className='h-px' />
+        <div className='flex flex-row'>
+          <button type='button' onClick={() => modifyTransactionAmt(-10)} className='w-20 border border-gray-300 rounded p-2'>-10</button>
+          <input type='number' name='transactionAmt' onChange={handleTransactionAmtChange} value={transactionAmt} inputMode='numeric' className='w-40 border border-gray-300 rounded p-2' />
+          <button type='button' onClick={() => modifyTransactionAmt(10)} className='w-20 border border-gray-300 rounded p-2'>+10</button>
         </div>
         <div className='flex flex-col'>
           <button type='button' onClick={handleBet} className='w-80 mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Bet</button>
