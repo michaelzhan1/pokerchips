@@ -32,10 +32,9 @@ export default function Home() {
     }
     const res: Response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/getNewRoomId');
     const roomId: string = await res.text();
-    // const roomId: string = data.roomId;
     setRoomId(roomId);
     console.log(roomId);
-    // router.push(`${roomId}`);
+    router.push(`${roomId}`);
   }
 
   const joinRoom = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -47,7 +46,6 @@ export default function Home() {
     const roomId: string  = (e.currentTarget as HTMLFormElement).roomId.value;
     const res: Response   = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/checkRoomId/' + roomId);
     const roomExists: string    = await res.text();
-    // const roomExists: string = data.roomExists;
     if (roomExists === 'true') {
       router.push(`${roomId}`);
     } else {
