@@ -74,11 +74,11 @@ export default function Home() {
           </div>
 
           {/* Name and chip field */}
-          <div className='flex flex-row w-full justify-between mt-6'>
-            <div className='w-7/12'>
+          <div className='flex flex-wrap w-full justify-center md:justify-between mt-6'>
+            <div className='w-5/6 md:w-7/12'>
               <input type='text' name='name' placeholder='Enter Name' onChange={handleNameChange} className='w-full border border-gray-300 rounded p-2' />
             </div>
-            <div className='w-1/3 flex justify-around'>
+            <div className='w-1/3 flex justify-around mt-3 md:mt-0'>
               <input type='number' name='amount' defaultValue={DEFAULT_AMOUNT} onChange={handleAmountChange} className='w-7/12 border border-gray-300 rounded p-2' />
               <div className='flex items-center w-1/3'>
                 <div>
@@ -89,11 +89,11 @@ export default function Home() {
           </div>
           
           {/* Buttons */}
-          <div className='mt-10 w-full grid grid-cols-2 divide-x divide-neutral-400'>
-            <div className='w-full flex flex-col items-center justify-center'>
+          <div className='mt-6 md:mt-10 w-full grid grid-cols-2 divide-x divide-neutral-400'>
+            <div className='w-full flex flex-col items-center justify-center py-3'>
               <button type='button' onClick={createRoom} className='w-2/3 bg-green-500 hover:bg-green-700 text-white font-bold py-4 px-4 rounded'>Create Room</button>
             </div>
-            <div className='w-full flex flex-col items-center'>
+            <div className='w-full flex flex-col items-center py-3'>
               <form onSubmit={joinRoom} className='w-2/3'>
                 <input type='text' name='roomId' defaultValue={roomId} placeholder='Enter Room ID' className='w-full border border-gray-300 rounded p-2' />
                 <button type='submit' className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2'>Join Room</button>
