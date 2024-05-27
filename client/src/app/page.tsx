@@ -102,6 +102,10 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        <div className='mt-20'>
+          Heavily inspired by <a href='https://www.pokerchips.io/' target='_blank' rel='noreferrer' className='text-blue-500 hover:text-blue-700 visited:text-violet-500'>pokerchips.io</a>
+        </div>
       </div>
     </>
   );
